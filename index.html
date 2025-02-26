@@ -2,47 +2,39 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Сюрприз для моей Котессы</title>
-
-  <!-- Подключаем локально сохранённые скрипты -->
+  <title>Спиннинг колесо</title>
   <script src="js/TweenMax.min.js"></script>
-  <script src="js/Winwheel.js"></script>
-  <script src="js/confetti.browser.min.js"></script>
-  
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #ff9999, #ffccff);
-      height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff9999, #ffccff);
+      margin: 0;
+      font-family: Arial, sans-serif;
       color: #fff;
       text-align: center;
     }
-    h1 {
-      font-size: 2.5em;
-      color: #ff4d4d;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-      margin-bottom: 20px;
-    }
     #wheel {
-      margin: 20px auto;
+      width: 400px;
+      height: 400px;
+      background: url('wheel.png') no-repeat center center;
+      background-size: cover;
+      /* Если нужно, можно добавить рамку и тень */
       border: 5px solid #fff;
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     }
     button {
+      margin-top: 20px;
       padding: 15px 30px;
       font-size: 1.2em;
-      color: #fff;
-      background-color: #ff4d4d;
       border: none;
       border-radius: 25px;
+      background-color: #ff4d4d;
+      color: #fff;
       cursor: pointer;
       transition: transform 0.2s, background-color 0.2s;
     }
@@ -53,7 +45,6 @@
     #result {
       margin-top: 20px;
       font-size: 1.5em;
-      color: #fff;
       font-weight: bold;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
@@ -62,72 +53,39 @@
 <body>
   <h1>Дорогая Котесса, крути колесо и узнай свой подарок!</h1>
   
-  <!-- Холст для колеса -->
-  <canvas id="wheel" width="400" height="400"></canvas>
+  <!-- Элемент, который представляет колесо -->
+  <div id="wheel"></div>
   
   <!-- Кнопка для запуска вращения -->
   <button onclick="spinWheel()">Крутить!</button>
   
-  <!-- Здесь будет выводиться результат -->
+  <!-- Здесь появится результат -->
   <div id="result"></div>
   
   <script>
-    let theWheel;
-
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM fully loaded, initializing the wheel...');
-      // Создаём колесо
-      theWheel = new Winwheel({
-        canvasId      : 'wheel',
-        centerX       : 200,
-        centerY       : 200,
-        outerRadius   : 180,
-        strokeStyle   : '#fff',
-        lineWidth     : 2,
-        drawMode      : 'code',
-        textFontSize  : 20,
-        textFillStyle : '#fff',
-        textAlignment : 'outer',
-
-        numSegments   : 5,
-        segments: [
-          { fillStyle: '#ff9999',  text: 'Цветы',                    size: 72 },
-          { fillStyle: '#ffcc99',  text: 'Ужин при свечах',          size: 72 },
-          { fillStyle: '#ffff99',  text: 'Новое платье',             size: 72 },
-          { fillStyle: '#99ff99',  text: 'LOVENSE Mini Sex Machine', size: 72 },
-          { fillStyle: '#9999ff',  text: 'Поездка на выходные',      size: 72 }
-        ],
-
-        // Измените duration с 5 на 300 – это примерно 5 секунд при 60 fps.
-        animation: {
-          type             : 'spinToStop',
-          duration         : 300,
-          spins            : 8,
-          callbackFinished : 'showPrize'
-        }
+    function spinWheel() {
+      // Рассчитаем итоговый угол: 8 оборотов + остановка на секторе секс машины.
+      // Предположим, что сектор с секс машиной находится по центру на 252°.
+      const totalRotation = 360 * 8 + 252;
+      
+      // Запускаем анимацию вращения элемента с id "wheel" за 5 секунд.
+      TweenMax.to("#wheel", 5, {
+        rotation: totalRotation,
+        ease: Power3.easeOut,
+        onUpdate: updateWheel,
+        onComplete: showPrize
       });
-
-      // Сразу рисуем колесо, чтобы оно было видно
-      theWheel.draw();
-    });
-
-    window.spinWheel = function() {
-      console.log('spinWheel() called');
-      if (!theWheel) return;
-      // Если колесо уже крутили, сразу фиксируем результат
-      if (localStorage.getItem('spun')) {
-        theWheel.rotationAngle = 252;
-        theWheel.draw();
-        showPrize();
-      } else {
-        theWheel.animation.stopAngle = 252;
-        theWheel.startAnimation();
-      }
-    };
-
+    }
+    
+    // Функция-обновление (если нужно, например, для отладки)
+    function updateWheel() {
+      // Можно выводить текущее значение поворота в консоль, если требуется.
+      // console.log("Текущий угол: " + TweenMax.getTweensOf("#wheel")[0].target.style.transform);
+    }
+    
     function showPrize() {
-      if (!localStorage.getItem('spun')) {
-        localStorage.setItem('spun', 'true');
+      // Запускаем конфетти (если есть библиотека и эффект)
+      if (typeof confetti !== "undefined") {
         confetti({
           particleCount: 100,
           spread: 70,
@@ -135,7 +93,7 @@
           colors: ['#ff4d4d', '#ff9999', '#ffffff']
         });
       }
-      document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
+      document.getElementById("result").innerText = "Твой подарок: LOVENSE Mini Sex Machine!";
     }
   </script>
 </body>
