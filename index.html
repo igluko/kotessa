@@ -7,16 +7,17 @@
 
   <!-- GSAP (TweenMax.js) для анимаций -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
-
-  <!-- Подключаем Winwheel.js локально -->
+  
+  <!-- Подключаем локальную копию Winwheel.js (с обновлением для инициализации ctx) -->
   <script src="js/Winwheel.js"></script>
-
+  
   <!-- Confetti.js для эффекта конфетти -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
+  
   <style>
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       font-family: 'Arial', sans-serif;
       background: linear-gradient(135deg, #ff9999, #ffccff);
       height: 100vh;
@@ -72,14 +73,13 @@
     let theWheel;
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Проверяем, есть ли Winwheel (должно быть, т.к. мы подключили локально)
+      // Проверяем, что Winwheel.js загружен
       if (typeof Winwheel === 'undefined') {
         console.error('Winwheel.js не загружен.');
         alert('Ошибка: Winwheel.js не загрузился. Проверьте файл js/Winwheel.js.');
         return;
       }
-
-      // Проверяем наличие Confetti
+      // Проверяем, что Confetti.js загружен
       if (typeof confetti === 'undefined') {
         console.error('Confetti.js не загружен.');
         return;
@@ -87,56 +87,53 @@
 
       // Инициализируем колесо
       theWheel = new Winwheel({
-        'canvasId'    : 'wheel',
-        'numSegments' : 5,
-        'outerRadius' : 180,
-        'textFontSize': 20,
-        'textFillStyle': '#fff',
-        'textAlignment': 'outer',
-        'segments'    : [
+        canvasId: 'wheel',
+        numSegments: 5,
+        outerRadius: 180,
+        textFontSize: 20,
+        textFillStyle: '#fff',
+        textAlignment: 'outer',
+        segments: [
           { 'fillStyle': '#ff9999', 'text': 'Цветы' },
           { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' },
           { 'fillStyle': '#ffff99', 'text': 'Новое платье' },
           { 'fillStyle': '#99ff99', 'text': 'LOVENSE Mini Sex Machine' },
           { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' }
         ],
-        'animation' : {
-          'type'     : 'spinToStop',
-          'duration' : 5,
-          'spins'    : 8,
-          'callbackFinished' : 'showPrize'
+        animation: {
+          type: 'spinToStop',
+          duration: 5,
+          spins: 8,
+          callbackFinished: 'showPrize'
         }
       });
 
-      // Если уже крутили (есть метка в localStorage), фиксируем нужный угол
+      // Если колесо уже крутилось, фиксируем нужный сектор
       if (localStorage.getItem('spun')) {
-        theWheel.rotationAngle = 108; // Положение, где приз "LOVENSE Mini Sex Machine"
+        theWheel.rotationAngle = 108; // Значение, соответствующее сектору с LOVENSE Mini Sex Machine
         theWheel.draw();
         document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
       }
     });
 
-    // Делаем функцию spinWheel глобальной, чтобы onclick="spinWheel()" её видел
+    // Глобальная функция для кнопки "Крутить!"
     window.spinWheel = function() {
       if (!theWheel) return;
 
-      // Если уже крутили, просто показываем зафиксированный результат
       if (localStorage.getItem('spun')) {
         theWheel.rotationAngle = 108;
         theWheel.draw();
         showPrize();
       } else {
-        // Останавливаем на 4 секторе
-        theWheel.animation.stopAngle = 252;
+        theWheel.animation.stopAngle = 252; // Устанавливаем остановку на нужном секторе
         theWheel.startAnimation();
       }
     }
 
-    // Callback после остановки
+    // Функция, вызываемая по окончании анимации
     function showPrize() {
       if (!localStorage.getItem('spun')) {
         localStorage.setItem('spun', 'true');
-        // Запустить конфетти
         confetti({
           particleCount: 100,
           spread: 70,
