@@ -139,6 +139,7 @@
         // Update the segment sizes (but only do this if the drawMode is 'code').
         // This also calls code that calculates the segment start and end angles.
         // ------------------------------------------
+        this.updateSegmentSizes = this.updateSegments;
         if (this.drawMode == 'code') {
             this.updateSegmentSizes();
         }
