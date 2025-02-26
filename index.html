@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Сюрприз для моей Котессы</title>
-  <!-- Подключаем локальные скрипты -->
   <script src="js/TweenMax.min.js"></script>
   <script src="js/confetti.browser.min.js"></script>
   <style>
@@ -26,9 +25,9 @@
       text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
       margin-bottom: 20px;
     }
-    /* Контейнер колеса с изображением */
+    /* Контейнер колеса */
     #wheel {
-      position: relative; /* для позиционирования стрелки */
+      position: relative;
       width: 400px;
       height: 400px;
       background: url('wheel.png') no-repeat center center;
@@ -37,16 +36,16 @@
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
-    /* Элемент-стрелка (начально прозрачный) */
+    /* Элемент стрелки (сначала прозрачный, повернут -45°) */
     #pointer {
       position: absolute;
       left: 50%;
-      bottom: 50%; /* нижняя точка стрелки совпадает с центром колеса */
+      bottom: 50%;
       width: 0;
       height: 0;
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
-      border-bottom: 40px solid #000;
+      border-bottom: 20px solid #000;
       transform: translate(-50%, 0) rotate(-45deg);
       transform-origin: bottom center;
       opacity: 0;
@@ -77,30 +76,28 @@
 <body>
   <h1>Дорогая Котесса, крути колесо и узнай свой подарок!</h1>
   
-  <!-- Контейнер колеса с добавленной стрелкой -->
   <div id="wheel">
     <div id="pointer"></div>
   </div>
   
-  <!-- Кнопка для запуска анимации -->
   <button onclick="spinWheel()">Крутить!</button>
   
-  <!-- Здесь появится результат -->
   <div id="result"></div>
   
   <script>
     function spinWheel() {
-      // Рассчитываем итоговый угол: 8 оборотов + остановка на секторе «LOVENSE Mini Sex Machine»
+      // Итоговый угол: 8 оборотов + остановка на секторе «LOVENSE Mini Sex Machine» (угол 252°)
       const totalRotation = 360 * 8 + 252;
       
-      // Создаем TimelineMax и запускаем два tween'а одновременно (начало в 0 сек)
+      // Создаем TimelineMax, который запускает одновременно:
+      // – появление стрелки (opacity: 0 → 1 за 5 секунд)
+      // – вращение колеса (за 5 секунд)
+      // – и за 0.5 сек до окончания вращения стрелка поворачивается на дополнительные +40°
       var tl = new TimelineMax();
+      
       tl.to("#pointer", 5, { opacity: 1 }, 0);
-      tl.to("#wheel", 5, { 
-        rotation: totalRotation, 
-        ease: Power3.easeOut, 
-        onComplete: showPrize 
-      }, 0);
+      tl.to("#wheel", 5, { rotation: totalRotation, ease: Power3.easeOut, onComplete: showPrize }, 0);
+      tl.to("#pointer", 0.5, { rotation: "+=40" }, 4.5);
     }
     
     function showPrize() {
