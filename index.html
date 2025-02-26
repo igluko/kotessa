@@ -2,18 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Сюрприз для моей Котессы</title>
 
-  <!-- GSAP (TweenMax.js) для анимаций -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
-  
-  <!-- Локальная копия Winwheel.js (с доработанным конструктором) -->
-  <script src="js/Winwheel.js"></script>
-  
-  <!-- Confetti.js для эффекта конфетти -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  
   <style>
     body {
       margin: 0;
@@ -65,79 +55,78 @@
 </head>
 <body>
   <h1>Дорогая Котесса, крути колесо и узнай свой подарок!</h1>
-
-  <!-- Холст для колеса -->
+  
+  <!-- Сам холст для колеса -->
   <canvas id="wheel" width="400" height="400"></canvas>
-
+  
   <!-- Кнопка для запуска вращения -->
   <button onclick="spinWheel()">Крутить!</button>
-
-  <!-- Вывод результата -->
+  
+  <!-- Здесь появится результат -->
   <div id="result"></div>
+  
+  <!-- Подключаем локальные скрипты, в строгом порядке: GSAP, Winwheel, Confetti, наш код -->
+  <script src="js/TweenMax.min.js"></script>
+  <script src="js/Winwheel.js"></script>
+  <script src="js/confetti.browser.min.js"></script>
 
   <script>
     let theWheel;
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Проверяем, что Winwheel.js загружен
-      if (typeof Winwheel === 'undefined') {
-        console.error('Winwheel.js не загружен. Проверьте путь js/Winwheel.js.');
-        return;
-      }
-      // Проверяем, что Confetti.js загружен
-      if (typeof confetti === 'undefined') {
-        console.error('Confetti.js не загружен.');
-        return;
-      }
+      console.log('DOM fully loaded, initializing the wheel...');
 
       // Создаём колесо
       theWheel = new Winwheel({
-        canvasId      : 'wheel',
-        // Явно указываем центр, чтобы круг точно вписался в 400x400
-        centerX       : 200,
-        centerY       : 200,
-        outerRadius   : 180,
-        // Для чёткой видимости сегментов
-        strokeStyle   : '#fff',
-        lineWidth     : 2,
-        drawMode      : 'code',
+        canvasId    : 'wheel',
+        centerX     : 200,    // Явный центр (canvas 400x400)
+        centerY     : 200,
+        outerRadius : 180,
+        strokeStyle : '#fff',
+        lineWidth   : 2,
+        drawMode    : 'code',
         textFontSize  : 20,
         textFillStyle : '#fff',
         textAlignment : 'outer',
-
-        // 5 сегментов по 72°, чтобы занять полный круг
-        numSegments: 5,
-        segments: [
+        // 5 сегментов по 72° = 360° полный круг
+        numSegments : 5,
+        segments    : [
           { fillStyle: '#ff9999',  text: 'Цветы',                    size: 72 },
           { fillStyle: '#ffcc99',  text: 'Ужин при свечах',          size: 72 },
           { fillStyle: '#ffff99',  text: 'Новое платье',             size: 72 },
           { fillStyle: '#99ff99',  text: 'LOVENSE Mini Sex Machine', size: 72 },
           { fillStyle: '#9999ff',  text: 'Поездка на выходные',      size: 72 }
         ],
-
-        // Параметры анимации
         animation: {
           type             : 'spinToStop',
-          duration         : 5,    // 5 секунд
-          spins            : 8,    // 8 оборотов
+          duration         : 5,  // 5 секунд
+          spins            : 8,  // 8 оборотов
           callbackFinished : 'showPrize'
         }
       });
 
-      // Сразу рисуем колесо, чтобы оно не казалось пустым
+      // Сразу нарисуем колесо (чтобы не было «пустого» круга)
       theWheel.draw();
     });
 
-    // При нажатии на кнопку "Крутить!"
+    // Функция, которую вызывает кнопка
     function spinWheel() {
-      if (!theWheel) return;
-      // Угол 252° – это середина 4-го сектора (где «LOVENSE Mini Sex Machine»)
+      console.log('spinWheel() called');
+
+      if (!theWheel) {
+        console.error('theWheel is not defined');
+        return;
+      }
+
+      // Устанавливаем угол остановки на сектор "LOVENSE Mini Sex Machine" (~252°)
       theWheel.animation.stopAngle = 252;
+      // Запускаем анимацию
       theWheel.startAnimation();
     }
 
-    // По завершении вращения (callbackFinished)
+    // Вызывается после окончания вращения
     function showPrize() {
+      console.log('showPrize() called, launching confetti...');
       // Запускаем конфетти
       confetti({
         particleCount: 100,
@@ -145,7 +134,7 @@
         origin: { y: 0.6 },
         colors: ['#ff4d4d', '#ff9999', '#ffffff']
       });
-      // Выводим сообщение
+      // Выводим результат
       document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
     }
   </script>
