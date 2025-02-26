@@ -2,13 +2,11 @@
 <html>
 <head>
     <title>Сюрприз для моей Котессы</title>
-    <!-- Локальная копия Winwheel.js -->
-    <script src="js/Winwheel.min.js"></script>
-    <!-- Актуальный CDN для Winwheel.js версии 2.8.0 -->
-    <script src="https://cdn.jsdelivr.net/npm/winwheel@1.0.1/dist/Winwheel.min.js"></script>
     <!-- TweenMax.js через CDN для анимации -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TweenMax.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+    <!-- Winwheel.js через CDN (версия 2.8.0) -->
+    <script src="https://cdn.jsdelivr.net/npm/winwheel@2.8.0/dist/Winwheel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -65,7 +63,6 @@
     <div id="result"></div>
 
     <script>
-        // Проверка, загрузилась ли библиотека Winwheel
         if (typeof Winwheel === 'undefined') {
             console.error('Winwheel.js не загружен. Проверь подключение.');
             alert('Произошла ошибка. Пожалуйста, обнови страницу или сообщи разработчику.');
@@ -78,10 +75,10 @@
                 'textAlignment': 'outer',
                 'segments': [
                     { 'fillStyle': '#ff9999', 'text': 'Цветы' },
-                    { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' },
+                    { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' }, <!-- Исправлено: убрано лишнее пространство, "стечах" на "свечах" -->
                     { 'fillStyle': '#ffff99', 'text': 'Новое платье' },
                     { 'fillStyle': '#99ff99', 'text': 'LOVENSE Mini Sex Machine' },
-                    { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' }
+                    { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' } <!-- Исправлено: "Поеазка" на "Поездка" -->
                 ],
                 'animation': {
                     'type': 'spinToStop',
@@ -93,9 +90,7 @@
 
             function spinWheel() {
                 if (localStorage.getItem('spun')) {
-                    theWheel.rotationAngle = 0;
-                    theWheel.stopAnimation(false);
-                    theWheel.rotationAngle = 216; // Фиксируем на сегменте 4 (LOVENSE)
+                    theWheel.rotationAngle = 216; // Фиксируем на сегменте 3 (LOVENSE)
                     theWheel.draw();
                     showPrize();
                 } else {
@@ -106,7 +101,6 @@
             function showPrize() {
                 if (!localStorage.getItem('spun')) {
                     localStorage.setItem('spun', 'true');
-                    // Запускаем конфетти
                     confetti({
                         particleCount: 100,
                         spread: 70,
@@ -117,7 +111,6 @@
                 document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
             }
 
-            // Проверка при загрузке страницы
             if (localStorage.getItem('spun')) {
                 theWheel.rotationAngle = 216; // Фиксируем на LOVENSE
                 theWheel.draw();
