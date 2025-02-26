@@ -18,166 +18,125 @@
  ****************************************************************************/
 
 (function (window) {
-    // ========================================================================
-    // The constructor for the WinWheel object.
-    // ========================================================================
-    window.Winwheel = function (params)
-    {
-        defaultOptions = {
-            'canvasId'          : 'canvas',
-            'centerX'           : null,
-            'centerY'           : null,
-            'outerRadius'       : null,
-            'innerRadius'       : 0,
-            'numSegments'       : 1,
-            'drawMode'          : 'code',
-            'rotationAngle'     : 0,
-            'textFontFamily'    : 'Arial',
-            'textFontSize'      : 20,
-            'textFontWeight'    : 'bold',
-            'textOrientation'   : 'horizontal',
-            'textAlignment'     : 'center',
-            'textDirection'     : 'normal',
-            'textMargin'        : null,
-            'textFillStyle'     : 'black',
-            'textStrokeStyle'   : null,
-            'textLineWidth'     : 1,
-            'fillStyle'         : 'silver',
-            'strokeStyle'       : 'black',
-            'lineWidth'         : 1,
-            'clearTheCanvas'    : true,
-            'imageOverlay'      : false,
-            'drawText'          : true,
-            'pointerAngle'      : 0,
-            'wheelImage'        : null,
-            'imageDirection'    : 'N',
-            'responsive'        : false,
+  window.Winwheel = function (params) {
+    // Определение значений по умолчанию
+    var defaultOptions = {
+      'canvasId': 'canvas',
+      'centerX': null,
+      'centerY': null,
+      'outerRadius': null,
+      'innerRadius': 0,
+      'numSegments': 1,
+      'drawMode': 'code',
+      'rotationAngle': 0,
+      'textFontFamily': 'Arial',
+      'textFontSize': 20,
+      'textFontWeight': 'bold',
+      'textOrientation': 'horizontal',
+      'textAlignment': 'center',
+      'textDirection': 'normal',
+      'textMargin': null,
+      'textFillStyle': 'black',
+      'textStrokeStyle': null,
+      'textLineWidth': 1,
+      'fillStyle': 'silver',
+      'strokeStyle': 'black',
+      'lineWidth': 1,
+      'clearTheCanvas': true,
+      'imageOverlay': false,
+      'drawText': true,
+      'pointerAngle': 0,
+      'wheelImage': null,
+      'imageDirection': 'N',
+      'responsive': false,
+      'scaleFactor': 1,
+      'animation': {},
+      'pins': {},
+      'pointerGuide': {}
+    };
 
-            'scaleFactor'       : 1,   // Used when responsive.
-
-            'animation' : {},
-            'pins'      : {},
-            'pointerGuide' : {}
-        };
-
-        // ------------------------------------------
-        // Loop through the default options and create them on this class set to the default value.
-        // If a value for them has been passed in then set that instead of the default.
-        // ------------------------------------------
-        for (var key in defaultOptions)
-        {
-            if ((params != null) && (typeof(params[key]) !== 'undefined'))
-            {
-                this[key] = params[key];
-            }
-            else
-            {
-                this[key] = defaultOptions[key];
-            }
-        }
-
-        // ------------------------------------------
-        // If the text margin is null then set to half the text size.
-        // ------------------------------------------
-        if (this.textMargin === null) {
-            this.textMargin = (this.textFontSize / 1.7);
-        }
-
-        // ------------------------------------------
-        // Also set some extra variables that are not passed in as parameters. 
-        // ------------------------------------------
-        this.segments                = new Array(null);
-        this.updateSegments = winwheelUpdateSegments;   // See further down for the function.
-        this.deleteSegment = winwheelDeleteSegment;
-        this.insertSegment = winwheelInsertSegment;
-        this.keyPressTimeoutHandle  = null;
-
-        // Create pointers to functions so they can be passed around as callbacks if desired.
-        this.drawWheel              = winwheelDrawWheel;
-        this.drawSegments           = winwheelDrawSegments;
-        this.drawSegmentText        = winwheelDrawSegmentText;
-        this.drawPointer            = winwheelDrawPointer;
-        this.drawPointerGuide       = winwheelDrawPointerGuide;
-        this.clearCanvas            = winwheelClearCanvas;
-        this.draw                   = winwheelDraw;
-        this.stopAnimation          = winwheelStopAnimation;
-        this.animationLoop          = winwheelAnimationLoop;
-        this.computeAnimation       = winwheelComputeAnimation;
-        this.startAnimation         = winwheelStartAnimation;
-        this.rotate                 = winwheelRotate;
-        this.getIndicatedSegment    = winwheelGetIndicatedSegment;
-        this.getIndicatedSegmentNumber = winwheelGetIndicatedSegmentNumber;
-
-        // ------------------------------------------
-        // If a value has not been specified for the segments then populate with defaults.
-        // ------------------------------------------
-        if ((params != null) && (typeof(params['segments']) !== 'undefined'))
-        {
-            // Create specified segments by looping through all the objects in the array supplied.
-            for (x = 1; x <= this.numSegments; x ++)
-            {
-                if ((typeof(params['segments'][x-1]) !== 'undefined'))
-                {
-                    this.segments[x] = new winwheelSegment(params['segments'][x-1]);
-                }
-                else
-                {
-                    this.segments[x] = new winwheelSegment();
-                }
-            }
-        }
-        else
-        {
-            // Create default segments if none have been passed in.
-            for (x = 1; x <= this.numSegments; x ++)
-            {
-                this.segments[x] = new winwheelSegment();
-            }
-        }
-
-        // ------------------------------------------
-        // Update the segment sizes (but only do this if the drawMode is 'code').
-        // This also calls code that calculates the segment start and end angles.
-        // ------------------------------------------
-        this.updateSegmentSizes = this.updateSegments;
-        if (this.drawMode == 'code') {
-            this.updateSegmentSizes();
-        }
-
-        // ------------------------------------------
-        // If the animation options have been passed in then create animation object as a member of this class.
-        // ------------------------------------------
-        this.animation = new winwheelAnimation(this.animation);
-
-        // ------------------------------------------
-        // If pins have been specified then create create a member of this class to store them.
-        // ------------------------------------------
-        this.pins = new winwheelPins(this.pins);
-
-        // ------------------------------------------
-        // If pointer guide has been specified then create create a member of this class to store them.
-        // ------------------------------------------
-        this.pointerGuide = new winwheelPointerGuide(this.pointerGuide);
-
-        // ------------------------------------------
-        // Do some extra calculations if image drawing is to be used.
-        // ------------------------------------------
-        if ((params != null) && (typeof(params['wheelImage']) !== 'undefined'))
-        {
-            this.wheelImage = new Image();
-            this.wheelImage.onload = winwheelLoadedImage;
-            this.wheelImage.src    = this.wheelImage;
-        }
-        else if (this.drawMode == 'image')
-        {
-            console.log('You have set drawMode = "image" but not specified wheelImage in the parameters');
-        }
-
-        // If responsive is true then try and add event listeners to support it.
-        if (this.responsive) {
-            winwheelResize(this);
-        }
+    // Применяем параметры или устанавливаем значения по умолчанию
+    for (var key in defaultOptions) {
+      if ((params != null) && (typeof(params[key]) !== 'undefined')) {
+        this[key] = params[key];
+      } else {
+        this[key] = defaultOptions[key];
+      }
     }
+
+    if (this.textMargin === null) {
+      this.textMargin = (this.textFontSize / 1.7);
+    }
+
+    // ВАЖНО: Инициализируем canvas и его контекст
+    if (this.canvasId) {
+      this.canvas = document.getElementById(this.canvasId);
+      if (!this.canvas) {
+        console.error("Canvas с id " + this.canvasId + " не найден.");
+      } else {
+        this.ctx = this.canvas.getContext('2d');
+      }
+    }
+
+    // Инициализируем дополнительные переменные и методы
+    this.segments = new Array(null);
+    this.updateSegments = winwheelUpdateSegments; // Функция обновления сегментов (определена ниже)
+    this.deleteSegment = winwheelDeleteSegment;
+    this.insertSegment = winwheelInsertSegment;
+    // Если не используете картинки в сегментах, можно удалить или закомментировать следующую строку:
+    // this.drawSegmentImages = winwheelDrawSegmentImages;
+    this.drawWheel = winwheelDrawWheel;
+    this.drawSegments = winwheelDrawSegments;
+    this.drawSegmentText = winwheelDrawSegmentText;
+    this.drawPointer = winwheelDrawPointer;
+    this.drawPointerGuide = winwheelDrawPointerGuide;
+    this.clearCanvas = winwheelClearCanvas;
+    this.draw = winwheelDraw;
+    this.stopAnimation = winwheelStopAnimation;
+    this.animationLoop = winwheelAnimationLoop;
+    this.computeAnimation = winwheelComputeAnimation;
+    this.startAnimation = winwheelStartAnimation;
+    this.rotate = winwheelRotate;
+    this.getIndicatedSegment = winwheelGetIndicatedSegment;
+    this.getIndicatedSegmentNumber = winwheelGetIndicatedSegmentNumber;
+
+    // Если заданы сегменты – создаём их
+    if ((params != null) && (typeof(params['segments']) !== 'undefined')) {
+      for (var x = 1; x <= this.numSegments; x++) {
+        if (typeof(params['segments'][x-1]) !== 'undefined') {
+          this.segments[x] = new winwheelSegment(params['segments'][x-1]);
+        } else {
+          this.segments[x] = new winwheelSegment();
+        }
+      }
+    } else {
+      for (var x = 1; x <= this.numSegments; x++) {
+        this.segments[x] = new winwheelSegment();
+      }
+    }
+
+    // Вызываем метод обновления сегментов (обратите внимание: если ранее была ошибка с именованием, убедитесь, что вызываете корректную функцию)
+    this.updateSegments();
+
+    // Инициализируем анимацию, пины и указатель
+    this.animation = new winwheelAnimation(this.animation);
+    this.pins = new winwheelPins(this.pins);
+    this.pointerGuide = new winwheelPointerGuide(this.pointerGuide);
+
+    // Если указан параметр wheelImage – обрабатываем его (если требуется)
+    if ((params != null) && (typeof(params['wheelImage']) !== 'undefined')) {
+      this.wheelImage = new Image();
+      this.wheelImage.onload = winwheelLoadedImage;
+      this.wheelImage.src = this.wheelImage;
+    } else if (this.drawMode == 'image') {
+      console.log('Вы задали drawMode = "image", но не указали wheelImage в параметрах');
+    }
+
+    // Если включена опция responsive, добавляем обработчик resize
+    if (this.responsive) {
+      winwheelResize(this);
+    }
+  };
 
     // ===========================================================================
     // This function takes the segment text and returns the text in the specified orientation, alignment, and direction.
