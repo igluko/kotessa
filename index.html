@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Сюрприз для жены</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/winwheel/1.1/Winwheel.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial; background: #ffe6e6; }
+        h1 { color: #ff4d4d; }
+        #wheel { margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <h1>Дорогая, крути колесо и узнай свой подарок!</h1>
+    <canvas id="wheel" width="300" height="300"></canvas>
+    <button onclick="spinWheel()">Крутить!</button>
+
+    <script>
+        let theWheel = new Winwheel({
+            'numSegments': 5,
+            'segments': [
+                { 'fillStyle': '#ff9999', 'text': 'Цветы' },
+                { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' },
+                { 'fillStyle': '#ffff99', 'text': 'Новое платье' },
+                { 'fillStyle': '#99ff99', 'text': 'LOVENSE Mini Sex Machine' },
+                { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' }
+            ],
+            'animation': {
+                'type': 'spinToStop',
+                'duration': 5,
+                'spins': 8,
+                'callbackFinished': 'alertPrize'
+            }
+        });
+
+        function spinWheel() {
+            if (localStorage.getItem('spun')) {
+                theWheel.rotationAngle = 0;
+                theWheel.stopAnimation(false);
+                theWheel.rotationAngle = 216; // Фиксируем на сегменте 4 (LOVENSE)
+                theWheel.draw();
+                alertPrize();
+            } else {
+                theWheel.startAnimation();
+            }
+        }
+
+        function alertPrize() {
+            if (!localStorage.getItem('spun')) {
+                localStorage.setItem('spun', 'true');
+            }
+            alert('Твой подарок: LOVENSE Mini Sex Machine!');
+        }
+
+        // Проверка при загрузке страницы
+        if (localStorage.getItem('spun')) {
+            theWheel.rotationAngle = 216; // Фиксируем на LOVENSE
+            theWheel.draw();
+        }
+    </script>
+</body>
+</html>
