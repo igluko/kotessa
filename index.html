@@ -2,30 +2,53 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Спиннинг колесо</title>
+  <title>Сюрприз для моей Котессы</title>
   <script src="js/TweenMax.min.js"></script>
+  <script src="js/confetti.browser.min.js"></script>
   <style>
     body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9999, #ffccff);
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #ff9999, #ffccff);
-      margin: 0;
-      font-family: Arial, sans-serif;
+      align-items: center;
       color: #fff;
       text-align: center;
     }
+    h1 {
+      font-size: 2.5em;
+      color: #ff4d4d;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    /* Контейнер колеса с изображением */
     #wheel {
+      position: relative; /* для абсолютного позиционирования стрелки */
       width: 400px;
       height: 400px;
       background: url('wheel.png') no-repeat center center;
       background-size: cover;
-      /* Если нужно, можно добавить рамку и тень */
       border: 5px solid #fff;
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+    /* Элемент-стрелка */
+    #pointer {
+      position: absolute;
+      left: 50%;
+      bottom: 50%; /* нижняя точка стрелки совпадает с центром колеса */
+      width: 0;
+      height: 0;
+      /* Создаем треугольник, который по умолчанию указывает вверх */
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid #000;  /* цвет стрелки */
+      transform: translate(-50%, 0) rotate(-45deg);
+      transform-origin: bottom center;
     }
     button {
       margin-top: 20px;
@@ -53,46 +76,39 @@
 <body>
   <h1>Дорогая Котесса, крути колесо и узнай свой подарок!</h1>
   
-  <!-- Элемент, который представляет колесо -->
-  <div id="wheel"></div>
+  <!-- Контейнер колеса с добавленной стрелкой -->
+  <div id="wheel">
+    <div id="pointer"></div>
+  </div>
   
   <!-- Кнопка для запуска вращения -->
   <button onclick="spinWheel()">Крутить!</button>
   
-  <!-- Здесь появится результат -->
+  <!-- Здесь будет выводиться результат -->
   <div id="result"></div>
+  
+  <!-- Подключаем локальный TweenMax (GSAP) -->
+  <script src="js/TweenMax.min.js"></script>
   
   <script>
     function spinWheel() {
-      // Рассчитаем итоговый угол: 8 оборотов + остановка на секторе секс машины.
-      // Предположим, что сектор с секс машиной находится по центру на 252°.
+      // Рассчитываем итоговый угол: 8 оборотов + стоп-угол 252° (сектор с секс машиной)
       const totalRotation = 360 * 8 + 252;
-      
-      // Запускаем анимацию вращения элемента с id "wheel" за 5 секунд.
+      // Анимация вращения с TweenMax (5 секунд)
       TweenMax.to("#wheel", 5, {
         rotation: totalRotation,
         ease: Power3.easeOut,
-        onUpdate: updateWheel,
         onComplete: showPrize
       });
     }
     
-    // Функция-обновление (если нужно, например, для отладки)
-    function updateWheel() {
-      // Можно выводить текущее значение поворота в консоль, если требуется.
-      // console.log("Текущий угол: " + TweenMax.getTweensOf("#wheel")[0].target.style.transform);
-    }
-    
     function showPrize() {
-      // Запускаем конфетти (если есть библиотека и эффект)
-      if (typeof confetti !== "undefined") {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#ff4d4d', '#ff9999', '#ffffff']
-        });
-      }
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff4d4d', '#ff9999', '#ffffff']
+      });
       document.getElementById("result").innerText = "Твой подарок: LOVENSE Mini Sex Machine!";
     }
   </script>
