@@ -1,22 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Сюрприз для жены</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/winwheel/1.1/Winwheel.min.js"></script>
+    <title>Сюрприз для моей Котессы</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/winwheel/2.8.0/Winwheel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { text-align: center; font-family: Arial; background: #ffe6e6; }
-        h1 { color: #ff4d4d; }
-        #wheel { margin: 20px auto; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9999, #ffccff);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #ff4d4d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        #wheel {
+            margin: 20px auto;
+            border: 5px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #ff4d4d;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        button:hover {
+            background-color: #ff6666;
+            transform: scale(1.05);
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
-    <h1>Дорогая, крути колесо и узнай свой подарок!</h1>
-    <canvas id="wheel" width="300" height="300"></canvas>
+    <h1>Дорогая Котесса, крути колесо и узнай свой подарок!</h1>
+    <canvas id="wheel" width="400" height="400"></canvas>
     <button onclick="spinWheel()">Крутить!</button>
+    <div id="result"></div>
 
     <script>
         let theWheel = new Winwheel({
             'numSegments': 5,
+            'outerRadius': 180,
+            'textFontSize': 16,
             'segments': [
                 { 'fillStyle': '#ff9999', 'text': 'Цветы' },
                 { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' },
@@ -28,7 +75,7 @@
                 'type': 'spinToStop',
                 'duration': 5,
                 'spins': 8,
-                'callbackFinished': 'alertPrize'
+                'callbackFinished': 'showPrize'
             }
         });
 
@@ -38,23 +85,31 @@
                 theWheel.stopAnimation(false);
                 theWheel.rotationAngle = 216; // Фиксируем на сегменте 4 (LOVENSE)
                 theWheel.draw();
-                alertPrize();
+                showPrize();
             } else {
                 theWheel.startAnimation();
             }
         }
 
-        function alertPrize() {
+        function showPrize() {
             if (!localStorage.getItem('spun')) {
                 localStorage.setItem('spun', 'true');
+                // Запускаем конфетти
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff4d4d', '#ff9999', '#ffffff']
+                });
             }
-            alert('Твой подарок: LOVENSE Mini Sex Machine!');
+            document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
         }
 
         // Проверка при загрузке страницы
         if (localStorage.getItem('spun')) {
             theWheel.rotationAngle = 216; // Фиксируем на LOVENSE
             theWheel.draw();
+            document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
         }
     </script>
 </body>
