@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сюрприз для моей Котессы</title>
-    <!-- TweenMax.js через CDN для анимации -->
+    <!-- TweenMax.js для анимаций -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
-    <!-- Winwheel.js через CDN (версия 2.8.0) -->
-    <script src="https://cdn.jsdelivr.net/npm/winwheel@1.0.1/dist/Winwheel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.min.js"></script>
+    <!-- Winwheel.js (используем доступную версию) -->
+    <script src="https://cdn.jsdelivr.net/npm/winwheel-module@2.8.1/dist/winwheel.min.js"></script>
+    <!-- Confetti.js для эффекта конфетти -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -63,11 +66,21 @@
     <div id="result"></div>
 
     <script>
-        if (typeof Winwheel === 'undefined') {
-            console.error('Winwheel.js не загружен. Проверь подключение.');
-            alert('Произошла ошибка. Пожалуйста, обнови страницу или сообщи разработчику.');
-        } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверка загрузки библиотек
+            if (typeof Winwheel === 'undefined') {
+                console.error('Winwheel.js не загружен. Проверьте CDN или используйте локальную копию.');
+                alert('Ошибка: Winwheel.js не загрузился. Обновите страницу или обратитесь к разработчику.');
+                return;
+            }
+            if (typeof confetti === 'undefined') {
+                console.error('Confetti.js не загружен. Проверьте CDN или используйте локальную копию.');
+                return;
+            }
+
+            // Инициализация колеса
             let theWheel = new Winwheel({
+                'canvasId': 'wheel', // Указываем ID canvas
                 'numSegments': 5,
                 'outerRadius': 180,
                 'textFontSize': 20,
@@ -75,10 +88,10 @@
                 'textAlignment': 'outer',
                 'segments': [
                     { 'fillStyle': '#ff9999', 'text': 'Цветы' },
-                    { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' }, <!-- Исправлено: убрано лишнее пространство, "стечах" на "свечах" -->
+                    { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' },
                     { 'fillStyle': '#ffff99', 'text': 'Новое платье' },
                     { 'fillStyle': '#99ff99', 'text': 'LOVENSE Mini Sex Machine' },
-                    { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' } <!-- Исправлено: "Поеазка" на "Поездка" -->
+                    { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' }
                 ],
                 'animation': {
                     'type': 'spinToStop',
@@ -88,16 +101,19 @@
                 }
             });
 
+            // Функция для вращения колеса
             function spinWheel() {
                 if (localStorage.getItem('spun')) {
-                    theWheel.rotationAngle = 216; // Фиксируем на сегменте 3 (LOVENSE)
+                    theWheel.rotationAngle = 108; // Фиксируем угол на сегменте 4
                     theWheel.draw();
                     showPrize();
                 } else {
+                    theWheel.animation.stopAngle = 252; // Остановка на сегменте 4
                     theWheel.startAnimation();
                 }
             }
 
+            // Функция для отображения приза
             function showPrize() {
                 if (!localStorage.getItem('spun')) {
                     localStorage.setItem('spun', 'true');
@@ -111,12 +127,13 @@
                 document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
             }
 
+            // Проверка, было ли колесо уже прокручено
             if (localStorage.getItem('spun')) {
-                theWheel.rotationAngle = 216; // Фиксируем на LOVENSE
+                theWheel.rotationAngle = 108; // Фиксируем угол на сегменте 4
                 theWheel.draw();
                 document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
             }
-        }
+        });
     </script>
 </body>
 </html>
