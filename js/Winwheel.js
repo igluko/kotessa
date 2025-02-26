@@ -96,7 +96,6 @@
         this.drawWheel              = winwheelDrawWheel;
         this.drawSegments           = winwheelDrawSegments;
         this.drawSegmentText        = winwheelDrawSegmentText;
-        this.drawSegmentImages      = winwheelDrawSegmentImages;
         this.drawPointer            = winwheelDrawPointer;
         this.drawPointerGuide       = winwheelDrawPointerGuide;
         this.clearCanvas            = winwheelClearCanvas;
