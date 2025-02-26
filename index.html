@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Сюрприз для моей Котессы</title>
+  <!-- Подключаем локальные скрипты -->
   <script src="js/TweenMax.min.js"></script>
   <script src="js/confetti.browser.min.js"></script>
   <style>
@@ -27,7 +28,7 @@
     }
     /* Контейнер колеса с изображением */
     #wheel {
-      position: relative; /* для абсолютного позиционирования стрелки */
+      position: relative; /* для позиционирования стрелки */
       width: 400px;
       height: 400px;
       background: url('wheel.png') no-repeat center center;
@@ -36,19 +37,19 @@
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     }
-    /* Элемент-стрелка */
+    /* Элемент-стрелка (сначала прозрачная) */
     #pointer {
       position: absolute;
       left: 50%;
       bottom: 50%; /* нижняя точка стрелки совпадает с центром колеса */
       width: 0;
       height: 0;
-      /* Создаем треугольник, который по умолчанию указывает вверх */
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
-      border-bottom: 30px solid #000;  /* цвет стрелки */
-      transform: translate(-50%, 0) rotate(45deg);
+      border-bottom: 40px solid #000;
+      transform: translate(-50%, 0) rotate(-45deg);
       transform-origin: bottom center;
+      opacity: 0;
     }
     button {
       margin-top: 20px;
@@ -81,28 +82,33 @@
     <div id="pointer"></div>
   </div>
   
-  <!-- Кнопка для запуска вращения -->
+  <!-- Кнопка для запуска анимации -->
   <button onclick="spinWheel()">Крутить!</button>
   
-  <!-- Здесь будет выводиться результат -->
+  <!-- Здесь появится результат -->
   <div id="result"></div>
   
-  <!-- Подключаем локальный TweenMax (GSAP) -->
-  <script src="js/TweenMax.min.js"></script>
-  
   <script>
+    // Функция запуска анимации последовательных эффектов с использованием TimelineMax
     function spinWheel() {
-      // Рассчитываем итоговый угол: 8 оборотов + стоп-угол 252° (сектор с секс машиной)
+      // Вычисляем итоговый угол: 8 оборотов + остановка на секторе с секс машиной (252°)
       const totalRotation = 360 * 8 + 252;
-      // Анимация вращения с TweenMax (5 секунд)
-      TweenMax.to("#wheel", 5, {
-        rotation: totalRotation,
-        ease: Power3.easeOut,
-        onComplete: showPrize
+      
+      // Создаем TimelineMax, который последовательно выполнит две анимации:
+      // 1. Плавное появление стрелки (opacity от 0 до 1 за 5 секунд)
+      // 2. Вращение колеса (за 5 секунд)
+      var tl = new TimelineMax();
+      
+      tl.to("#pointer", 5, { opacity: 1 });
+      tl.to("#wheel", 5, { 
+        rotation: totalRotation, 
+        ease: Power3.easeOut, 
+        onComplete: showPrize 
       });
     }
     
     function showPrize() {
+      // Запускаем эффект конфетти
       confetti({
         particleCount: 100,
         spread: 70,
