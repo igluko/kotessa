@@ -8,7 +8,7 @@
   <!-- GSAP (TweenMax.js) для анимаций -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
   
-  <!-- Подключаем локальную копию Winwheel.js (с инициализацией canvas и ctx) -->
+  <!-- Локальная копия Winwheel.js (с доработанным конструктором) -->
   <script src="js/Winwheel.js"></script>
   
   <!-- Confetti.js для эффекта конфетти -->
@@ -65,78 +65,95 @@
 </head>
 <body>
   <h1>Дорогая Котесса, крути колесо и узнай свой подарок!</h1>
+
+  <!-- Сам canvas для колеса -->
   <canvas id="wheel" width="400" height="400"></canvas>
+
+  <!-- Кнопка для запуска вращения -->
   <button onclick="spinWheel()">Крутить!</button>
+
+  <!-- Здесь будет выводиться результат -->
   <div id="result"></div>
 
   <script>
     let theWheel;
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Проверяем, что Winwheel.js загружен
+      // Проверяем загрузку Winwheel.js
       if (typeof Winwheel === 'undefined') {
-        console.error('Winwheel.js не загружен.');
-        alert('Ошибка: Winwheel.js не загрузился. Проверьте файл js/Winwheel.js.');
+        console.error('Winwheel.js не загружен. Проверьте путь js/Winwheel.js.');
         return;
       }
-      // Проверяем, что Confetti.js загружен
+      // Проверяем Confetti
       if (typeof confetti === 'undefined') {
         console.error('Confetti.js не загружен.');
         return;
       }
 
-      // Инициализируем колесо с 5 сегментами
+      // Создаём колесо
       theWheel = new Winwheel({
-        canvasId: 'wheel',
-        numSegments: 5,
-        outerRadius: 180,
-        textFontSize: 20,
-        textFillStyle: '#fff',
-        textAlignment: 'outer',
+        canvasId       : 'wheel',
+        // Явно указываем координаты центра, чтобы круг точно вписался в canvas 400x400
+        centerX        : 200,
+        centerY        : 200,
+        outerRadius    : 180,
+        // Включаем обводку сегментов для наглядности
+        strokeStyle    : '#fff',
+        lineWidth      : 2,
+        // Обязательно 'code', чтобы Winwheel рисовал сегменты из кода (а не из изображения)
+        drawMode       : 'code',
+        // Параметры текста
+        textFontSize   : 20,
+        textFillStyle  : '#fff',
+        textAlignment  : 'outer',
+        // Определяем 5 сегментов и явно задаём size (72° каждый), чтобы точно заняли весь круг (360°)
+        numSegments    : 5,
         segments: [
-          { 'fillStyle': '#ff9999', 'text': 'Цветы' },
-          { 'fillStyle': '#ffcc99', 'text': 'Ужин при свечах' },
-          { 'fillStyle': '#ffff99', 'text': 'Новое платье' },
-          { 'fillStyle': '#99ff99', 'text': 'LOVENSE Mini Sex Machine' },
-          { 'fillStyle': '#9999ff', 'text': 'Поездка на выходные' }
+          { fillStyle: '#ff9999',  text: 'Цветы',                   size: 72 },
+          { fillStyle: '#ffcc99',  text: 'Ужин при свечах',         size: 72 },
+          { fillStyle: '#ffff99',  text: 'Новое платье',            size: 72 },
+          { fillStyle: '#99ff99',  text: 'LOVENSE Mini Sex Machine', size: 72 },
+          { fillStyle: '#9999ff',  text: 'Поездка на выходные',     size: 72 }
         ],
+        // Настройки анимации
         animation: {
-          type: 'spinToStop',
-          duration: 5,      // Длительность анимации (секунд)
-          spins: 8,         // Количество оборотов
-          callbackFinished: 'showPrize'
+          type             : 'spinToStop',
+          duration         : 5,    // 5 секунд
+          spins            : 8,    // 8 полных оборотов
+          callbackFinished : 'showPrize'
         }
       });
 
-      // Если колесо уже крутилось, сразу показываем результат (целевой сектор – секс машина)
+      // Если колесо уже крутили, сразу фиксируем угол, чтобы выпадала секс машина
       if (localStorage.getItem('spun')) {
-        theWheel.rotationAngle = 252;  // Угол для сектора «LOVENSE Mini Sex Machine»
+        theWheel.rotationAngle = 252; // Сектор 4: "LOVENSE Mini Sex Machine"
         theWheel.draw();
         document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
       }
     });
 
-    // Глобальная функция, вызываемая кнопкой "Крутить!"
+    // Функция, которая срабатывает при нажатии на "Крутить!"
     window.spinWheel = function() {
       if (!theWheel) return;
 
-      // Если уже крутилось, сразу фиксируем результат
+      // Если уже крутили, просто показываем зафиксированный результат
       if (localStorage.getItem('spun')) {
         theWheel.rotationAngle = 252;
         theWheel.draw();
         showPrize();
       } else {
-        // Устанавливаем стоп-угол так, чтобы выпал сектор с секс машиной (сектор 4: 216°-288°, выбираем 252°)
+        // Задаём угол остановки так, чтобы гарантированно выпал сектор 4
         theWheel.animation.stopAngle = 252;
+        // Запускаем анимацию
         theWheel.startAnimation();
       }
-    }
+    };
 
-    // Функция-обработчик окончания анимации
+    // Callback-функция, вызывается по завершении анимации
     function showPrize() {
+      // Если ещё не крутили, ставим метку и запускаем конфетти
       if (!localStorage.getItem('spun')) {
         localStorage.setItem('spun', 'true');
-        // Запускаем эффект конфетти с задержкой (анимация уже длится 5 секунд)
         confetti({
           particleCount: 100,
           spread: 70,
@@ -144,6 +161,7 @@
           colors: ['#ff4d4d', '#ff9999', '#ffffff']
         });
       }
+      // Выводим результат
       document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
     }
   </script>
