@@ -23,7 +23,7 @@
     h1 {
       font-size: 2.5em;
       color: #ff4d4d;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
       margin-bottom: 20px;
     }
     /* Контейнер колеса с изображением */
@@ -35,9 +35,9 @@
       background-size: cover;
       border: 5px solid #fff;
       border-radius: 50%;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
-    /* Элемент-стрелка (сначала прозрачная) */
+    /* Элемент-стрелка (начально прозрачный) */
     #pointer {
       position: absolute;
       left: 50%;
@@ -70,7 +70,7 @@
       margin-top: 20px;
       font-size: 1.5em;
       font-weight: bold;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     }
   </style>
 </head>
@@ -89,26 +89,21 @@
   <div id="result"></div>
   
   <script>
-    // Функция запуска анимации последовательных эффектов с использованием TimelineMax
     function spinWheel() {
-      // Вычисляем итоговый угол: 8 оборотов + остановка на секторе с секс машиной (252°)
+      // Рассчитываем итоговый угол: 8 оборотов + остановка на секторе «LOVENSE Mini Sex Machine»
       const totalRotation = 360 * 8 + 252;
       
-      // Создаем TimelineMax, который последовательно выполнит две анимации:
-      // 1. Плавное появление стрелки (opacity от 0 до 1 за 5 секунд)
-      // 2. Вращение колеса (за 5 секунд)
+      // Создаем TimelineMax и запускаем два tween'а одновременно (начало в 0 сек)
       var tl = new TimelineMax();
-      
-      tl.to("#pointer", 5, { opacity: 1 });
+      tl.to("#pointer", 5, { opacity: 1 }, 0);
       tl.to("#wheel", 5, { 
         rotation: totalRotation, 
         ease: Power3.easeOut, 
         onComplete: showPrize 
-      });
+      }, 0);
     }
     
     function showPrize() {
-      // Запускаем эффект конфетти
       confetti({
         particleCount: 100,
         spread: 70,
