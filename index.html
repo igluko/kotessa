@@ -8,7 +8,7 @@
   <!-- GSAP (TweenMax.js) для анимаций -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
   
-  <!-- Подключаем локальную копию Winwheel.js (с обновлением для инициализации ctx) -->
+  <!-- Подключаем локальную копию Winwheel.js (с инициализацией canvas и ctx) -->
   <script src="js/Winwheel.js"></script>
   
   <!-- Confetti.js для эффекта конфетти -->
@@ -85,7 +85,7 @@
         return;
       }
 
-      // Инициализируем колесо
+      // Инициализируем колесо с 5 сегментами
       theWheel = new Winwheel({
         canvasId: 'wheel',
         numSegments: 5,
@@ -102,38 +102,41 @@
         ],
         animation: {
           type: 'spinToStop',
-          duration: 5,
-          spins: 8,
+          duration: 5,      // Длительность анимации (секунд)
+          spins: 8,         // Количество оборотов
           callbackFinished: 'showPrize'
         }
       });
 
-      // Если колесо уже крутилось, фиксируем нужный сектор
+      // Если колесо уже крутилось, сразу показываем результат (целевой сектор – секс машина)
       if (localStorage.getItem('spun')) {
-        theWheel.rotationAngle = 108; // Значение, соответствующее сектору с LOVENSE Mini Sex Machine
+        theWheel.rotationAngle = 252;  // Угол для сектора «LOVENSE Mini Sex Machine»
         theWheel.draw();
         document.getElementById('result').innerText = 'Твой подарок: LOVENSE Mini Sex Machine!';
       }
     });
 
-    // Глобальная функция для кнопки "Крутить!"
+    // Глобальная функция, вызываемая кнопкой "Крутить!"
     window.spinWheel = function() {
       if (!theWheel) return;
 
+      // Если уже крутилось, сразу фиксируем результат
       if (localStorage.getItem('spun')) {
-        theWheel.rotationAngle = 108;
+        theWheel.rotationAngle = 252;
         theWheel.draw();
         showPrize();
       } else {
-        theWheel.animation.stopAngle = 252; // Устанавливаем остановку на нужном секторе
+        // Устанавливаем стоп-угол так, чтобы выпал сектор с секс машиной (сектор 4: 216°-288°, выбираем 252°)
+        theWheel.animation.stopAngle = 252;
         theWheel.startAnimation();
       }
     }
 
-    // Функция, вызываемая по окончании анимации
+    // Функция-обработчик окончания анимации
     function showPrize() {
       if (!localStorage.getItem('spun')) {
         localStorage.setItem('spun', 'true');
+        // Запускаем эффект конфетти с задержкой (анимация уже длится 5 секунд)
         confetti({
           particleCount: 100,
           spread: 70,
