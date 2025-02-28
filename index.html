@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Сюрприз для моей Котессы</title>
-  <script src="js/TweenMax.min.js"></script>
-  <script src="js/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
   <style>
     body {
       margin: 0;
@@ -25,7 +25,6 @@
       text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
       margin-bottom: 20px;
     }
-    /* Контейнер колеса */
     #wheel {
       position: relative;
       width: 400px;
@@ -36,7 +35,6 @@
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
-    /* Элемент стрелки (сначала прозрачный, повернут -45°) */
     #pointer {
       position: absolute;
       left: 50%;
@@ -65,6 +63,10 @@
       background-color: #ff6666;
       transform: scale(1.05);
     }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
     #result {
       margin-top: 20px;
       font-size: 1.5em;
@@ -80,35 +82,42 @@
     <div id="pointer"></div>
   </div>
   
-  <button onclick="spinWheel()">Крутить!</button>
+  <button id="spinButton" onclick="spinWheel()">Крутить!</button>
   
   <div id="result"></div>
   
   <script>
-    function spinWheel() {
-      // Итоговый угол: 8 оборотов + остановка на секторе «LOVENSE Mini Sex Machine» (угол 252°)
-      const totalRotation = 360 * 8 + 252;
+    document.addEventListener("DOMContentLoaded", function() {
+      let hasSpun = false;
       
-      // Создаем TimelineMax, который запускает одновременно:
-      // – появление стрелки (opacity: 0 → 1 за 5 секунд)
-      // – вращение колеса (за 5 секунд)
-      // – и за 0.5 сек до окончания вращения стрелка поворачивается на дополнительные +40°
-      var tl = new TimelineMax();
+      function spinWheel() {
+        if (hasSpun) return;
+        hasSpun = true;
+        document.getElementById("spinButton").disabled = true;
+        
+        const totalRotation = 360 * 8 + 252;
+        
+        gsap.to("#pointer", { duration: 5, opacity: 1 });
+        gsap.to("#wheel", { duration: 5, rotation: totalRotation, ease: "power3.out", onComplete: showPrize });
+        gsap.to("#pointer", { duration: 0.5, rotation: "+=60", delay: 4.5 });
+      }
       
-      tl.to("#pointer", 5, { opacity: 1 }, 0);
-      tl.to("#wheel", 5, { rotation: totalRotation, ease: Power3.easeOut, onComplete: showPrize }, 0);
-      tl.to("#pointer", 0.5, { rotation: "+=60" }, 4.5);
-    }
-    
-    function showPrize() {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff4d4d', '#ff9999', '#ffffff']
-      });
-      document.getElementById("result").innerText = "Твой подарок: LOVENSE Mini Sex Machine!";
-    }
+      function showPrize() {
+        if (typeof confetti === "function") {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff4d4d', '#ff9999', '#ffffff']
+          });
+        } else {
+          console.error("Confetti library is not loaded.");
+        }
+        document.getElementById("result").innerText = "Твой подарок: LOVENSE Mini Sex Machine!";
+      }
+      
+      window.spinWheel = spinWheel;
+    });
   </script>
 </body>
 </html>
